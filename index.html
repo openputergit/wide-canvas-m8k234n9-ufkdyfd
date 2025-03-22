@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCare+ | Your Health Partner</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+        }
+        .chat-message {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: 20%;
+        }
+        .bot-message {
+            background-color: #f5f5f5;
+            margin-right: 20%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <div class="text-2xl font-bold text-blue-600">MediCare+</div>
+                    </div>
+                    <div class="hidden md:flex space-x-8">
+                        <a href="#home" class="text-gray-700 hover:text-blue-600">Home</a>
+                        <a href="#about" class="text-gray-700 hover:text-blue-600">About</a>
+                        <a href="#services" class="text-gray-700 hover:text-blue-600">Services</a>
+                        <a href="#team" class="text-gray-700 hover:text-blue-600">Team</a>
+                        <a href="#portal" class="text-gray-700 hover:text-blue-600">Patient Portal</a>
+                        <a href="#contact" class="text-gray-700 hover:text-blue-600">Contact</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <div class="bg-gradient-to-r from-blue-500 to-blue-700 text-white py-20">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold mb-4">Your Health, Our Priority</h1>
+                <p class="text-xl mb-8">24/7 Medical Consultation & Support</p>
+                <button @click="openChat" class="bg-white text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-blue-50">
+                    Start Consultation
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Interface -->
+        <div v-if="showChat" class="fixed bottom-4 right-4 w-96 bg-white rounded-lg shadow-xl">
+            <div class="p-4 bg-blue-600 text-white rounded-t-lg flex justify-between items-center">
+                <h3 class="font-semibold">Medical Assistant</h3>
+                <button @click="showChat = false" class="text-white"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="chat-container p-4" ref="chatContainer">
+                <div v-for="(message, index) in chatMessages" :key="index"
+                    :class="['chat-message', message.type === 'user' ? 'user-message' : 'bot-message']">
+                    {{ message.text }}
+                </div>
+            </div>
+            <div class="p-4 border-t">
+                <div class="flex gap-2">
+                    <input type="text" v-model="userInput" @keyup.enter="sendMessage"
+                        class="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+                        placeholder="Type your message...">
+                    <button @click="sendMessage" class="bg-blue-600 text-white px-4 py-2 rounded-lg">
+                        <i class="bi bi-send"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Section -->
+        <div id="services" class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">Our Services</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="p-6 bg-gray-50 rounded-lg">
+                        <i class="bi bi-chat-dots text-4xl text-blue-600"></i>
+                        <h3 class="text-xl font-semibold mt-4">Online Consultation</h3>
+                        <p class="mt-2 text-gray-600">24/7 access to medical professionals</p>
+                    </div>
+                    <div class="p-6 bg-gray-50 rounded-lg">
+                        <i class="bi bi-clipboard2-pulse text-4xl text-blue-600"></i>
+                        <h3 class="text-xl font-semibold mt-4">Report Analysis</h3>
+                        <p class="mt-2 text-gray-600">Expert analysis of your medical reports</p>
+                    </div>
+                    <div class="p-6 bg-gray-50 rounded-lg">
+                        <i class="bi bi-calendar-check text-4xl text-blue-600"></i>
+                        <h3 class="text-xl font-semibold mt-4">Appointment Booking</h3>
+                        <p class="mt-2 text-gray-600">Easy scheduling of medical appointments</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue
+
+        createApp({
+            data() {
+                return {
+                    showChat: false,
+                    userInput: '',
+                    chatMessages: [],
+                    botResponses: {
+                        greeting: [
+                            "Hello! How can I assist you today?",
+                            "Welcome! What medical concerns can I help you with?",
+                            "Hi there! I'm your medical assistant. How may I help?"
+                        ],
+                        appointment: [
+                            "I can help you book an appointment. What type of appointment would you like to schedule?",
+                            "Sure, I can assist with booking. When would you prefer to schedule your appointment?"
+                        ],
+                        support: [
+                            "I understand your concerns. Let me help you through this.",
+                            "You're not alone in this. How can I provide better support?"
+                        ]
+                    }
+                }
+            },
+            methods: {
+                openChat() {
+                    this.showChat = true;
+                    if (this.chatMessages.length === 0) {
+                        this.chatMessages.push({
+                            type: 'bot',
+                            text: this.getRandomResponse('greeting')
+                        });
+                    }
+                },
+                sendMessage() {
+                    if (!this.userInput.trim()) return;
+
+                    // Add user message
+                    this.chatMessages.push({
+                        type: 'user',
+                        text: this.userInput
+                    });
+
+                    // Process user input and generate response
+                    const userMessage = this.userInput.toLowerCase();
+                    let botResponse;
+
+                    if (userMessage.includes('appointment') || userMessage.includes('book')) {
+                        botResponse = this.getRandomResponse('appointment');
+                    } else {
+                        botResponse = this.getRandomResponse('support');
+                    }
+
+                    // Add bot response with slight delay
+                    setTimeout(() => {
+                        this.chatMessages.push({
+                            type: 'bot',
+                            text: botResponse
+                        });
+                        this.$nextTick(() => {
+                            this.scrollToBottom();
+                        });
+                    }, 500);
+
+                    this.userInput = '';
+                    this.scrollToBottom();
+                },
+                getRandomResponse(type) {
+                    const responses = this.botResponses[type];
+                    return responses[Math.floor(Math.random() * responses.length)];
+                },
+                scrollToBottom() {
+                    const container = this.$refs.chatContainer;
+                    container.scrollTop = container.scrollHeight;
+                }
+            }
+        }).mount('#app')
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
